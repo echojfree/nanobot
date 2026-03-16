@@ -125,6 +125,17 @@ def test_agent_reports_missing_openai_key_without_traceback(tmp_path: Path) -> N
     assert "Traceback" not in result.output
 
 
+def test_gateway_cli_one_shot_message_mode(tmp_path: Path) -> None:
+    env = fake_home_env(tmp_path / "home")
+
+    result = runner.invoke(app, ["gateway", "-m", "/list ."], env=env)
+
+    assert result.exit_code == 0, result.output
+    assert "outbound>" in result.output
+    assert "Tool execution summary" in result.output
+    assert "list_files" in result.output
+
+
 @pytest.mark.asyncio
 async def test_gateway_runtime_round_trip(tmp_path: Path) -> None:
     workspace = tmp_path / "workspace"

@@ -146,7 +146,10 @@ def agent(
 
 
 @app.command()
-def gateway(config: str | None = typer.Option(None, "--config", "-c", help="Config file path")) -> None:
+def gateway(
+    message: str | None = typer.Option(None, "--message", "-m", help="Single inbound message to process"),
+    config: str | None = typer.Option(None, "--config", "-c", help="Config file path"),
+) -> None:
     """Run the bus-backed gateway demo."""
     _, _, agent_runtime = build_runtime(config)
     assert agent_runtime is not None
@@ -157,6 +160,19 @@ def gateway(config: str | None = typer.Option(None, "--config", "-c", help="Conf
         task = asyncio.create_task(gateway_runtime.run())
         console.print(f"{__logo__} gateway mode. type `exit` to quit.")
         try:
+            if message:
+                await bus.publish_inbound(
+                    InboundMessage(
+                        channel="cli",
+                        chat_id="gateway",
+                        sender_id="user",
+                        content=message,
+                    )
+                )
+                outbound = await bus.consume_outbound()
+                console.print(f"\noutbound> {outbound.content}\n")
+                return
+
             while True:
                 user_text = await asyncio.to_thread(typer.prompt, "inbound")
                 if user_text.strip().lower() in {"exit", "quit"}:

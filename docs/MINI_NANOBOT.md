@@ -45,6 +45,7 @@ uv run mini-nanobot onboard
 uv run mini-nanobot status
 uv run mini-nanobot agent
 uv run mini-nanobot gateway
+uv run mini-nanobot gateway -m "/list ."
 ```
 
 ## Provider Modes
